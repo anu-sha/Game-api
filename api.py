@@ -109,7 +109,7 @@ class TicTacToeApi(remote.Service):
         
         game.current_status.append(position)
         #check for game win
-        '''game is won when the same user has pciked any of these combinations [1,2,3],[4,5,6],[7,8,9],[1,5,9],[3,5,7]'''
+        '''game is won when the same user has pciked any of these combinations [1,2,3],[4,5,6],[7,8,9],[1,5,9],[3,5,7],[1,4,7],[2,5,8],[3,6,9]'''
         #get positions of current player
         current_player_positions=[x for x in game.current_status if x.user==request.player]
         if current_player_positions.length==3
