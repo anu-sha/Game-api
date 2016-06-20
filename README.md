@@ -1,4 +1,4 @@
-#Full Stack Nanodegree Project 4 Refresh
+#Tic Tac Toe Game Api
 
 ## Set-Up Instructions:
 1.  Update the value of application in app.yaml to the app ID you have registered
@@ -11,12 +11,11 @@
  
  
 ##Game Description:
-Guess a number is a simple guessing game. Each game begins with a random 'target'
-number between the minimum and maximum values provided, and a maximum number of
-'attempts'. 'Guesses' are sent to the `make_move` endpoint which will reply
-with either: 'too low', 'too high', 'you win', or 'game over' (if the maximum
-number of attempts is reached).
-Many different Guess a Number games can be played by many different Users at any
+Tic Tac Toe is a two player game played on a 3X3 grid. On each turn, users choose an index. 
+The game is won when the user chooses indexes such that all line up in a row or a column or diagnolly. 
+'Moves' are sent to the `make_move` endpoint which will reply
+with either: 'next player turn', 'you win', or 'game over' (if all the indexes are filled.)
+Many different Tic Tac Toe games can be played by many different Users at any
 given time. Each game can be retrieved or played by using the path parameter
 `urlsafe_game_key`.
 
@@ -94,6 +93,9 @@ given time. Each game can be retrieved or played by using the path parameter
     
  - **Score**
     - Records completed games. Associated with Users model via KeyProperty.
+     
+ - **Position**
+    - Records the user at an index. Associated with Users model via KeyProperty.
     
 ##Forms Included:
  - **GameForm**
