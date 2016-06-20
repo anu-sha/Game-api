@@ -91,24 +91,36 @@ class TicTacToeApi(remote.Service):
         """Makes a move. Returns a game state with message"""
         game = get_by_urlsafe(request.urlsafe_game_key, Game)
         if game.game_over:
-            return game.to_form('Game already over!')
+            return game.to_form('Game over!')
 
-        game.attempts_remaining -= 1
-        if request.guess == game.target:
+      
+        #check if previous play was from another user and not this user
+        status=game.current_status
+        if(game.current_status[status.length-1].user==request.player)
+            return game.to_form('Incorrect turn')
+
+        #check if current_status already has the position filled previously    
+        exists=[x for x in game.current_status if x.index == request.index]
+        if exists
+            return game.to_form('Choose another position')
+
+        position= Position(user=request.player,
+                            index=request.index)    
+        
+        game.current_status.append(position)
+        #check for game win
+        '''game is won when the same user has pciked any of these combinations [1,2,3],[4,5,6],[7,8,9],[1,5,9],[3,5,7]'''
+        #get positions of current player
+        current_player_positions=[x for x in game.current_status if x.user==request.player]
+        if current_player_positions.length==3
+            #check for match
+            #if match
             game.end_game(True)
             return game.to_form('You win!')
 
-        if request.guess < game.target:
-            msg = 'Too low!'
-        else:
-            msg = 'Too high!'
-
-        if game.attempts_remaining < 1:
-            game.end_game(False)
-            return game.to_form(msg + ' Game over!')
-        else:
+        else
             game.put()
-            return game.to_form(msg)
+            return game.to_form("Next player's turn")
 
     @endpoints.method(response_message=ScoreForms,
                       path='scores',
