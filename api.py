@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-`
+
 """api.py - Create and configure the Game API exposing the resources.
 This can also contain game logic. For more complex games it would be wise to
 move game logic to another file. Ideally the API will be simple, concerned
@@ -11,7 +12,7 @@ from protorpc import remote, messages
 from google.appengine.api import memcache
 from google.appengine.api import taskqueue
 
-from models import User, Game, Score
+from models import User, Game, Score, Position
 from models import StringMessage, NewGameForm, GameForm, MakeMoveForm,\
     ScoreForms
 from utils import get_by_urlsafe
@@ -89,38 +90,62 @@ class TicTacToeApi(remote.Service):
                       http_method='PUT')
     def make_move(self, request):
         """Makes a move. Returns a game state with message"""
+        player = User.query(User.name == request.player).get()
+        if not player:
+            raise endpoints.NotFoundException(
+                    'A User with that name does not exist!')
+
         game = get_by_urlsafe(request.urlsafe_game_key, Game)
         if game.game_over:
             return game.to_form('Game over!')
 
       
         #check if previous play was from another user and not this user
-        status=game.current_status
-        if(game.current_status[status.length-1].user==request.player)
-            return game.to_form('Incorrect turn')
+        
+        length=len(game.current_status)
+        if length!=0:
+            last_user=game.current_status[length-1].user
+
+            if last_user==player.key:
+                return game.to_form('Incorrect turn')
 
         #check if current_status already has the position filled previously    
-        exists=[x for x in game.current_status if x.index == request.index]
-        if exists
+        exists=[x for x in game.current_status if x.index == request.move]
+        if exists:
             return game.to_form('Choose another position')
 
-        position= Position(user=request.player,
-                            index=request.index)    
+        position= Position(user=player.key,
+                            index=request.move) 
+
         
         game.current_status.append(position)
         #check for game win
         '''game is won when the same user has pciked any of these combinations [1,2,3],[4,5,6],[7,8,9],[1,5,9],[3,5,7],[1,4,7],[2,5,8],[3,6,9]'''
+        win_positions=[[1,2,3],[4,5,6],[7,8,9],[1,5,9],[3,5,7],[1,4,7],[2,5,8],[3,6,9]]
         #get positions of current player
-        current_player_positions=[x for x in game.current_status if x.user==request.player]
-        if current_player_positions.length==3
+        current_player_positions=[x for x in game.current_status if x.user==player.key]
+        if len(current_player_positions)>=3:
             #check for match
             #if match
-            game.end_game(True)
-            return game.to_form('You win!')
+            current_player_positions.sort()
+            if current_player_positions in win_positions:
+                game.end_game(True)
+                game.put()
+                return game.to_form('You win!')
+            else:
+                if len(current_status==9):
+                    game.end_game(True)
+                    game.put()
+                    return game.to_form('Game Over!')
+                else:    
+                    game.put()
+                    return game.to_form("Next player's turn")    
 
-        else
+        else:
             game.put()
+            
             return game.to_form("Next player's turn")
+
 
     @endpoints.method(response_message=ScoreForms,
                       path='scores',
