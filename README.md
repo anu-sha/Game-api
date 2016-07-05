@@ -39,12 +39,11 @@ given time. Each game can be retrieved or played by using the path parameter
  - **new_game**
     - Path: 'game'
     - Method: POST
-    - Parameters: user_name, min, max, attempts
+    - Parameters: player1_name, playe2_name
     - Returns: GameForm with initial game state.
-    - Description: Creates a new Game. user_name provided must correspond to an
-    existing user - will raise a NotFoundException if not. Min must be less than
-    max. Also adds a task to a task queue to update the average moves remaining
-    for active games.
+    - Description: Creates a new Game with the two playerd provided. Player names 
+      provided must correspond to an existing user - will raise a NotFoundException if not.
+
      
  - **get_game**
     - Path: 'game/{urlsafe_game_key}'
@@ -56,10 +55,26 @@ given time. Each game can be retrieved or played by using the path parameter
  - **make_move**
     - Path: 'game/{urlsafe_game_key}'
     - Method: PUT
-    - Parameters: urlsafe_game_key, guess
-    - Returns: GameForm with new game state.
-    - Description: Accepts a 'guess' and returns the updated state of the game.
-    If this causes a game to end, a corresponding Score entity will be created.
+    - Parameters: urlsafe_game_key, position, player
+    - Returns: GameForm with current game state.
+    - Description: Accepts the player and position(1 to 9) and returns the updated state 
+      of the game. If this causes a game to end or win, a corresponding Score entity will be created.
+
+
+ - **get_user_rankings**
+    - Path: 'games/ranking'
+    - Method: GET
+    - Parameters: None
+    - Returns: RankForms
+    - Description: Returns all users and their number of wins (unordered).
+      
+ - **get_game_history**
+    - Path: 'game/history/{urlsafe_game_key'
+    - Method: GET
+    - Parameters: urlsafe_game_key
+    - Returns: GameHistoryForm
+    - Description: Returns all the moves and the result messages of a game
+      Throws a Game not Found exception if game is not found
     
  - **get_scores**
     - Path: 'scores'
@@ -68,21 +83,24 @@ given time. Each game can be retrieved or played by using the path parameter
     - Returns: ScoreForms.
     - Description: Returns all Scores in the database (unordered).
     
- - **get_user_scores**
-    - Path: 'scores/user/{user_name}'
+ - **cancel_game**
+    - Path:'games/{urlsafe_game_key}
+    - Method: PUT
+    - Parameters: urlsafe_game_key
+    - Returns: GameForm
+    - Description: Cancels a game if it is not over yet
+      Throws a Game Not Found exception if game is not found
+      Throws a bad request exception if the game is already over
+   
+ - **get_user_games**
+    - Path: 'games/user/{user_name}'
     - Method: GET
     - Parameters: user_name
-    - Returns: ScoreForms. 
-    - Description: Returns all Scores recorded by the provided player (unordered).
-    Will raise a NotFoundException if the User does not exist.
-    
- - **get_active_game_count**
-    - Path: 'games/active'
-    - Method: GET
-    - Parameters: None
-    - Returns: StringMessage
-    - Description: Gets the average number of attempts remaining for all games
-    from a previously cached memcache key.
+    - Returns: GameForms
+    - Description: Returns all games played by the user.
+      Throws a user not found exception if user is not a valid user
+
+ 
 
 ##Models Included:
  - **User**
