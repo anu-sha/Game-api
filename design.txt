@@ -1,0 +1,35 @@
+What additional properties did you add to your models and why?
+User model
+-Added a property called game that will hold all the games that the user plays. This property will help ing etting all the user games for the "get_user_games" endpoint.
+Position Model
+- Created this model to help with saving each player's move and the message sent after the move
+- Properties:
+	user - key that references the user
+	move - holds the position that user selected (1-9)
+	result - stringproperty that holds the result mesage sent back.
+Game Model
+- Added the following properties
+	player_one - To hold player 1 of the game
+	player_two - To hold player 2 of the game
+	winner - To hold the winner of the game if any
+	current_status - To hold all the moves by players as repeated list of Position model. This property helps in determining the game win, draws, filled positions and user turns.
+	game_cancelled - Boolean field that holds if the game is cancelled or not
+
+- Added the following methods to the game model
+	to_game_history - returns a GameHistoryForm for all the positions in the current_status of the game
+	to_history_form - returns a HistoryForm for each position.
+
+
+
+
+What were some of the trade-offs or struggles you faced while implementing the new game logic?
+- Once I decided to implement “Tic Tac Toe”, I initially wanted to use a 2 dimensional array as opposed to having cells 1 through 9 as I thought a grid would represent the actual tictactoe board more closely. For the simplicity of code, I decided to use 1 through 9 .
+- The first struggle I faced was when I was deploying create a new game logic to google cloud.The endpoints were not getting updated for same reason.   After some effort and clicking around the google cloud, I came across the logs and was able to find that the problem was due to few syntax errors in my code. I have used logging feature heavily since then to find out the errors in my code and logic.
+- The most challenging logic to implement was the make move endpoint. I first had two properties to hold each player positions as I thought that would make it easier to check for the game win positions but later I realized that I also had to hold each user turn as well so that I could determine if the player was making a move out of turn. This was when I decided to create a class "Position" so that I could hold the user, move together as an object.
+  I first added current_status as a keyproperty and tried to add the position keys to the current_status proeprty. But later read the documentation and added it as a structured property as it would be easier to retrieve the proeprties easier than a position key. I also think the to_form method prompted me to use a structured property as I was initally not sure how to include positions with a key in the history form.
+Another challenge was implementing the winning logic which is a part of the make_move endpoint. I was sure that my logic was right but somehow the result was not what I was expecting. I searched for an alternative to writing out variable values to the console which is when I came across logging.info() method. I was able to use that feature to find out the error in my code.
+-Once I was almost done with the game logic, I kept receiving an error that the user was not found. I checked the datastore and could see the user there and also verified it by logging the user key. But for some reason, user.get() kept throwing an error. Deleting all the users and starting over resolved this issue.
+
+
+
+-
