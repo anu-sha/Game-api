@@ -6,7 +6,7 @@ import logging
 
 import webapp2
 from google.appengine.api import mail, app_identity
-from api import GuessANumberApi
+from api import TicTacToeApi
 
 from models import User
 
@@ -17,7 +17,7 @@ class SendReminderEmail(webapp2.RequestHandler):
         app_id = app_identity.get_application_id()
         users = User.query(User.email != None)
         for user in users:
-            for game in user.games:
+            for game in user.game:
                 game_object=game.get()  
                 if not game_object.game_over or not game_object.game_cancelled:
                     subject = 'This is a reminder!'

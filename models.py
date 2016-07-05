@@ -30,8 +30,6 @@ class Game(ndb.Model):
     player_one = ndb.KeyProperty(required=True, kind='User')
     player_two = ndb.KeyProperty(required=True, kind='User')
     winner = ndb.KeyProperty(kind='User')
-    player_one_moves = ndb.IntegerProperty(repeated=True)
-    player_two_moves = ndb.IntegerProperty(repeated=True)
     current_status= ndb.StructuredProperty(Position, repeated=True)
     game_cancelled = ndb.BooleanProperty(default=False)
 
@@ -81,12 +79,12 @@ class Game(ndb.Model):
         score.put()
 
 
-    def to_game_history(self)
+    def to_game_history(self):
         return GameHistoryForm(items=[self.to_history_form(x.user.get().name,x.index,x.result) 
                                                         for x in self.current_status])  
 
 
-    def to_history_fosrm(self,player,index,result):
+    def to_history_form(self,player,index,result):
         form=HistoryForm()
         form.player=player
         form.position=index
@@ -101,9 +99,7 @@ class Score(ndb.Model):
     won = ndb.BooleanProperty(required=True)
     game=ndb.KeyProperty(required=True, kind='Game')
 
-    def to_form(self):
-        return ScoreForm(user_name=self.user.get().name, won=self.won,
-                         date=str(self.date), moves=self.guesses)
+    
 
 class HistoryForm(messages.Message):
     player=messages.StringField(1)
@@ -141,15 +137,7 @@ class MakeMoveForm(messages.Message):
     move = messages.IntegerField(2, required=True)
 
 
-class ScoreForm(messages.Message):
-    """ScoreForm for outbound Score information"""
-    user_name = messages.StringField(1, required=True)
-    date = messages.StringField(2, required=True)
-    won = messages.BooleanField(3, required=True)
-    moves = messages.IntegerField(4, repeated=True)
-
-
-class ScoreForms(messages.Message):
+class RankForms(messages.Message):
     """Return multiple ScoreForms"""
     items = messages.MessageField(RankForm, 1, repeated=True)
 

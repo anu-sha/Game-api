@@ -1,4 +1,5 @@
 
+
 """api.py - Create and configure the Game API exposing the resources.
 This can also contain game logic. For more complex games it would be wise to
 move game logic to another file. Ideally the API will be simple, concerned
@@ -13,7 +14,7 @@ from google.appengine.api import taskqueue
 
 from models import User, Game, Score, Position
 from models import StringMessage, NewGameForm, GameForm, MakeMoveForm,\
-    ScoreForms, RankForm, GameForms
+    RankForms, RankForm, GameForms, GameHistoryForm
 from utils import get_by_urlsafe
 
 NEW_GAME_REQUEST = endpoints.ResourceContainer(NewGameForm)
@@ -103,13 +104,15 @@ class TicTacToeApi(remote.Service):
 
     @endpoints.method(request_message=MAKE_MOVE_REQUEST,
                       response_message=GameForm,
-                      path='game/{urlsafe_game_key}',
+                      path='game/move/{urlsafe_game_key}',
                       name='make_move',
                       http_method='PUT')
     def make_move(self, request):
         """Makes a move. Returns a game state with message"""
 
+
         #get user from db
+
         player = User.query(User.name == request.player).get()
         if not player:
             raise endpoints.NotFoundException(
@@ -122,11 +125,12 @@ class TicTacToeApi(remote.Service):
             raise endpoints.NotFoundException('Game not found!')
 
         #check if this user is a player of this game or not
-        validUser=game.player_one==player.key || game.player_two==player.key
-        if not validUser
+        validUser=game.player_one==player.key or game.player_two==player.key
+        if not validUser:
             raise endpoints.BadRequestException("Not a valid user of the game!!!")
         #if game is over     
         if game.game_over:
+
             raise endpoints.BadRequestException("Game is already over!!!")
 
         #if game has been cancelled     
@@ -182,6 +186,48 @@ class TicTacToeApi(remote.Service):
                     game.put()
                     return game.to_form("Next player's turn")    
 
+
+            return game.to_form('Game over!')
+
+      
+        #check if previous play was from another user and not this user
+        
+        length=len(game.current_status)
+        if length!=0:
+            last_user=game.current_status[length-1].user
+
+            if last_user==player.key:
+                return game.to_form('Incorrect turn')
+
+        #check if current_status already has the position filled previously    
+        exists=[x for x in game.current_status if x.index == request.move]
+        if exists:
+            return game.to_form('Choose another position')
+
+        
+        #check for game win
+        '''game is won when the same user has pciked any of these combinations [1,2,3],[4,5,6],[7,8,9],[1,5,9],[3,5,7],[1,4,7],[2,5,8],[3,6,9]'''
+        win_positions=[[1,2,3],[4,5,6],[7,8,9],[1,5,9],[3,5,7],[1,4,7],[2,5,8],[3,6,9]]
+        #get positions of current player
+        current_player_positions=[x for x in game.current_status if x.user==player.key]
+        if len(current_player_positions)>=3:
+            #check for match
+            #if match
+            current_player_positions.sort()
+            if current_player_positions in win_positions:
+                game.end_game(True)
+                game.put()
+                return game.to_form('You win!')
+            else:
+                if len(current_status==9):
+                    game.end_game(True)
+                    game.put()
+                    return game.to_form('Game Over!')
+                else:    
+                    game.put()
+                    return game.to_form("Next player's turn")    
+
+
         else:
             #the number of filled positions is less than 3
             #no need to check for game won
@@ -190,6 +236,7 @@ class TicTacToeApi(remote.Service):
             game.put()
             
             return game.to_form("Next player's turn")
+
 
   
 
@@ -204,8 +251,9 @@ class TicTacToeApi(remote.Service):
         if not user:
             raise endpoints.NotFoundException(
                     'A User with that name does not exist!')
-        games=User.game    
-        return GameForms(items=[game.to_form() for game in games])
+        games=user.game  
+          
+        return GameForms(items=[game.get().to_form("user game") for game in games])
 
     @endpoints.method(request_message=GET_GAME_REQUEST,
                       response_message=GameForm,
@@ -222,10 +270,12 @@ class TicTacToeApi(remote.Service):
               game.game_cancelled=True
               game.put()
               return game.to_form('Game has been cancelled!')
+            else:
+              return endpoints.BadRequestException('Game is already over and cannot be cancelled')    
         else:
             raise endpoints.NotFoundException('Game not found!')
 
-    @endpoints.method(response_message=ScoreForms,
+    @endpoints.method(response_message=RankForms,
                       path='games/ranking',
                       name='get_user_rankings',
                       http_method='GET')
@@ -239,11 +289,11 @@ class TicTacToeApi(remote.Service):
         for winner in users:
           scores=Score.query(Score.user==winner.key).fetch()
           rankforms.append(RankForm(user=winner.name,wins=len(scores)))
-        return ScoreForms(items=rankforms)    
+        return RankForms(items=rankforms)    
 
     @endpoints.method(request_message=GET_GAME_REQUEST,
-                      response_message=GameForm,
-                      path='game/{urlsafe_game_key}',
+                      response_message=GameHistoryForm,
+                      path='game/history/{urlsafe_game_key}',
                       name='get_game_history',
                       http_method='GET')
     def get_game_history(self, request):
@@ -251,7 +301,8 @@ class TicTacToeApi(remote.Service):
         game = get_by_urlsafe(request.urlsafe_game_key, Game)
         
         if game:
-            return game.to_history()
+            return GameHistoryForm(items=[game.to_history_form(x.user.get().name,x.index,x.result) 
+                                                        for x in game.current_status])
         else:
             raise endpoints.NotFoundException('Game not found!')
 
