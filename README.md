@@ -117,16 +117,25 @@ given time. Each game can be retrieved or played by using the path parameter
     
 ##Forms Included:
  - **GameForm**
-    - Representation of a Game's state (urlsafe_key, attempts_remaining,
-    game_over flag, message, user_name).
+    - Representation of a Game's state (urlsafe_key, player1_name, player2_name, 
+             history, game_over, game_cancelled, message ).
+ - **GameForms**
+    - Representation of multiple game forms
+ 
+ - **HistoryForm**
+    - Representation of each move in the game (plater, position, result)
+    
+ - **RankForm**
+    - Representation of a user's wins (user, wins)
+    
  - **NewGameForm**
-    - Used to create a new game (user_name, min, max, attempts)
+    - Used to create a new game (player1_name, player2_name)
+    
  - **MakeMoveForm**
-    - Inbound make move form (guess).
- - **ScoreForm**
-    - Representation of a completed game's Score (user_name, date, won flag,
-    guesses).
- - **ScoreForms**
-    - Multiple ScoreForm container.
+    - Inbound make move form (player, move).
+    
+ - **RankForms**
+    - Multiple Rank forms container.
+
  - **StringMessage**
     - General purpose String container.
