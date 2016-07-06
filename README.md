@@ -66,7 +66,8 @@ given time. Each game can be retrieved or played by using the path parameter
     - Method: GET
     - Parameters: None
     - Returns: RankForms
-    - Description: Returns all users and their number of wins (unordered).
+    - Description: Returns all users and their number of wins (unordered). 
+      The ranking criteria used is the win ratio - games won/games played
       
  - **get_game_history**
     - Path: 'game/history/{urlsafe_game_key'
