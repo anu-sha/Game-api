@@ -1,17 +1,26 @@
 
 
-"""api.py - Create and configure the Game API for TicTacToe exposing the resources."""
+"""api.py - Create and configure the Game API exposing the resources.
+This can also contain game logic. For more complex games it would be wise to
+move game logic to another file. Ideally the API will be simple, concerned
+primarily with communication to/from the API's users."""
 
 
 import logging
 import endpoints
 from protorpc import remote, messages
-from google.appengine.api import memcache
-from google.appengine.api import taskqueue
 
 from models import User, Game, Score, Position
-from models import StringMessage, NewGameForm, GameForm, MakeMoveForm,\
-    RankForms, RankForm, GameForms, GameHistoryForm
+from models import (
+    StringMessage, 
+    NewGameForm, 
+    GameForm, 
+    MakeMoveForm,
+    RankForms, 
+    RankForm, 
+    GameForms, 
+    GameHistoryForm,
+)
 from utils import get_by_urlsafe
 
 NEW_GAME_REQUEST = endpoints.ResourceContainer(NewGameForm)
@@ -26,8 +35,6 @@ GET_USER_GAMES=endpoints.ResourceContainer(
         user_name=messages.StringField(1),)
 
 
-
-MEMCACHE_MOVES_REMAINING = 'MOVES_REMAINING'
 
 
 
@@ -135,6 +142,12 @@ class TicTacToeApi(remote.Service):
         if game.game_cancelled:
             raise endpoints.BadRequestException("Game Cancelled!")
 
+        #check if the move is in range 1 to 9
+        if not str(request.move).isdigit() :    
+            raise endpoints.BadRequestException("Move is not valid. Choose a number in range 1 to 9")
+
+        if not request.move in range(1,10):    
+            raise endpoints.BadRequestException("Move is not valid. Choose a number in range 1 to 9")
         #check if previous play was from another user and not this user
         length=len(game.current_status)
         if length!=0:
