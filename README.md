@@ -11,11 +11,12 @@
  
  
 ##Game Description:
-Tic Tac Toe is a two player game played on a 3X3 grid. On each turn, users choose an index. 
-The game is won when the user chooses indexes such that all line up in a row or a column or diagnolly. 
+Tic Tac Toe is a two player game played on a 3X3 grid. On each turn, users choose a position between and including 1 and 9. 
+The squares or positions in the first row are numbered 1, 2 3, second row squares are 4,5,6 and so on.
+The game is won when the user chooses indexes such that all line up in a row or a column or diagonally. 
 'Moves' are sent to the `make_move` endpoint which will reply
-with either: 'next player turn', 'you win', or 'game over' (if all the indexes are filled.)
-Many different Tic Tac Toe games can be played by many different Users at any
+with either: 'next player turn', 'you win', or 'game over' (if all the positions are filled.)
+Many different Tic Tac Toe games can be played by many different users at any
 given time. Each game can be retrieved or played by using the path parameter
 `urlsafe_game_key`.
 
@@ -77,13 +78,6 @@ given time. Each game can be retrieved or played by using the path parameter
     - Description: Returns all the moves and the result messages of a game
       Throws a Game not Found exception if game is not found
     
- - **get_scores**
-    - Path: 'scores'
-    - Method: GET
-    - Parameters: None
-    - Returns: ScoreForms.
-    - Description: Returns all Scores in the database (unordered).
-    
  - **cancel_game**
     - Path:'games/{urlsafe_game_key}
     - Method: PUT
@@ -98,7 +92,7 @@ given time. Each game can be retrieved or played by using the path parameter
     - Method: GET
     - Parameters: user_name
     - Returns: GameForms
-    - Description: Returns all games played by the user.
+    - Description: Returns all active games currently played by the user.
       Throws a user not found exception if user is not a valid user
 
  
