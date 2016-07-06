@@ -13,12 +13,17 @@
 ##Game Description:
 Tic Tac Toe is a two player game played on a 3X3 grid. On each turn, users choose a position between and including 1 and 9. 
 The squares or positions in the first row are numbered 1, 2 3, second row squares are 4,5,6 and so on.
-The game is won when the user chooses indexes such that all line up in a row or a column or diagonally. 
-'Moves' are sent to the `make_move` endpoint which will reply
+The game is won when the user chooses indexes such that all line up in a row or a column or diagonally.
+To create a new user, use the create_user endpoint.
+To create a new game, use the new_game endpoint
+To play the game use the `make_move` endpoint which will reply
 with either: 'next player turn', 'you win', or 'game over' (if all the positions are filled.)
 Many different Tic Tac Toe games can be played by many different users at any
 given time. Each game can be retrieved or played by using the path parameter
 `urlsafe_game_key`.
+
+The player gets a point only when the game is won irrespective of the number of moves used to win the game. When the game ends,
+the winner if any is added to the Score model. 
 
 ##Files Included:
  - api.py: Contains endpoints and game playing logic.
