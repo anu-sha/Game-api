@@ -23,7 +23,7 @@ given time. Each game can be retrieved or played by using the path parameter
 `urlsafe_game_key`.
 
 The player gets a point only when the game is won irrespective of the number of moves used to win the game. When the game ends,
-the winner if any is added to the Score model. 
+the winner if any is added to the Score model. If none of the player's win, the game is a draw and none of the players get a point.
 
 ##Files Included:
  - api.py: Contains endpoints and game playing logic.
