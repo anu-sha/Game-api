@@ -69,7 +69,7 @@ class Game(ndb.Model):
         return form
 
     def end_game(self, won,winner):
-        """Ends the game - if won is True, the player won. - if won is False,
+        """Ends the game - if won is True, the player won. -,
         the player lost."""
         self.game_over = True
         self.winner=winner
@@ -80,11 +80,13 @@ class Game(ndb.Model):
 
 
     def to_game_history(self):
+        """returns a GameHistoryForm with  a list of all moves"""
         return GameHistoryForm(items=[self.to_history_form(x.user.get().name,x.index,x.result) 
                                                         for x in self.current_status])  
 
 
     def to_history_form(self,player,index,result):
+        """Returns a HistoryForm with a move"""
         form=HistoryForm()
         form.player=player
         form.position=index
@@ -102,6 +104,7 @@ class Score(ndb.Model):
     
 
 class HistoryForm(messages.Message):
+    """HistoryForm for outbound move entry"""
     player=messages.StringField(1)
     position=messages.IntegerField(2)
     result=messages.StringField(3)
@@ -121,6 +124,7 @@ class GameForms(messages.Message):
     items = messages.MessageField(GameForm, 1, repeated=True)
 
 class RankForm(messages.Message):
+    """Rank For a single user entry"""
     user=messages.StringField(1,required=True)
     wins=messages.IntegerField(2,required=False)    
 
@@ -138,7 +142,7 @@ class MakeMoveForm(messages.Message):
 
 
 class RankForms(messages.Message):
-    """Return multiple ScoreForms"""
+    """Return multiple RankForms"""
     items = messages.MessageField(RankForm, 1, repeated=True)
 
 
@@ -147,5 +151,5 @@ class StringMessage(messages.Message):
     message = messages.StringField(1, required=True)
 
 class GameHistoryForm(messages.Message):
-    """Return multiple ScoreForms"""
+    """Return multiple HistoryForms"""
     items = messages.MessageField(HistoryForm, 1, repeated=True)    
